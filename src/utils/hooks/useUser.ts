@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import User from '../../interface/user';
 import "core-js/stable/atob";
 
-export default function useUserData() {
+export default function useUser() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {

@@ -20,6 +20,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-root-toast";
 import { colors } from "../src/colors";
 import "core-js/stable/atob";
+import { AxiosError } from "axios";
 
 interface Form {
   login: string;
@@ -58,7 +59,6 @@ export default function App() {
       const { data: tokenResponse } = await api.post<Token>("/login", postData);
       const userId = jwtDecode<UserSessionJwt>(tokenResponse.token).id;
 
-      console.log("antes get")
       const { data: userData } = await api.get(`/usersession/${userId}`, {
         headers: {
           Authorization: `Bearer ${tokenResponse.token}`,
@@ -69,13 +69,16 @@ export default function App() {
         usuario: userData,
       };
 
-      console.log("antes async")
       const jsonUser = JSON.stringify(data);
       await AsyncStorage.setItem("user", jsonUser);
 
       router.push("pages/harvesterSelect");
     } catch (error) {
-      const toast = Toast.show("Usuario não encontrado", {
+      const axiosError = error as AxiosError;
+      const status = axiosError.response?.status;
+      const errorMessage = status === 401 ? "Matrícula ou senha incorretos" : "Erro inesperado";
+
+      const toast = Toast.show(`${errorMessage}`, {
         duration: Toast.durations.LONG,
         position: 50,
         shadow: true,

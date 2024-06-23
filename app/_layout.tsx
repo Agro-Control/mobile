@@ -47,7 +47,7 @@ export default function Layout() {
             }}
           />
           <Stack.Screen
-            name="pages/harvesterHourMeter"
+            name="pages/startTurn"
             options={{
               headerShown: false,
             }}
