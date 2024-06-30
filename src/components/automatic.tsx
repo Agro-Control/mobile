@@ -14,14 +14,17 @@ export const automaticEvents: Event[] = [
   {
     id: 1,
     name: "Operação",
+    value: "operacao",
   },
   {
     id: 2,
     name: "Transbordo",
+    value: "aguardando_transbordo",
   },
   {
     id: 3,
     name: "Deslocamento",
+    value: "deslocamento",
   },
 ];
 

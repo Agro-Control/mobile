@@ -22,22 +22,27 @@ export const manualEvents: Event[] = [
   {
     id: 1,
     name: "Abastecimento",
+    value: "abastecimento"
   },
   {
     id: 2,
     name: "Aguard. Trans.",
+    value: "aguardando_transbordo"
   },
   {
     id: 3,
     name: "Troca de Turno",
+    value: "troca_turno"
   },
   {
     id: 4,
     name: "Manutenção",
+    value: "manutencao"
   },
   {
     id: 5,
     name: "Clima",
+    value: "clima"
   },
 ];
 
@@ -80,6 +85,7 @@ const Manual = ({
             handleEvent({
               id: 6,
               name: "Finalizar OS",
+              value: "fim_ordem",
             });
             router.push("pages/endTurn");
           }}

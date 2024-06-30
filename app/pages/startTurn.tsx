@@ -1,18 +1,15 @@
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-
 import logo from "../../src/assets/logo-column.png";
-
-import { styles } from "../styles";
 import useOrder from "../../src/utils/hooks/useOrder";
-import { useRouter } from "expo-router";
-import { AxiosError } from "axios";
-import Toast from "react-native-root-toast";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import api from "../../src/api/api";
 import useUser from "../../src/utils/hooks/useUser";
-import { colors } from "../../src/colors";
 import Event from "../../src/interface/evento";
+import Toast from "react-native-root-toast";
+import { colors } from "../../src/colors";
+import { useRouter } from "expo-router";
+import { styles } from "../styles";
+import { AxiosError } from "axios";
+import api from "../../src/api/api";
 
 const startTurn = () => {
   const router = useRouter();
