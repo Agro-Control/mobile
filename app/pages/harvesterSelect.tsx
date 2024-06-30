@@ -1,22 +1,20 @@
-import React, { useState } from "react";
 import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { useRouter } from "expo-router";
-
-import logo from "../../src/assets/logo-column.png";
-
-
-import { styles } from "../styles";
-import useUser from "../../src/utils/hooks/useUser";
-import { AxiosError } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import api from "../../src/api/api";
+import logo from "../../src/assets/logo-column.png";
+import useUser from "../../src/utils/hooks/useUser";
 import Toast from "react-native-root-toast";
 import { colors } from "../../src/colors";
+import React, { useState } from "react";
+import { useRouter } from "expo-router";
+import api from "../../src/api/api";
+import { AxiosError } from "axios";
+import { styles } from "../styles";
 
 const harvesterSelect = () => {
   const [harvesterId, setHarvesterId] = useState("");
   const { user } = useUser();
   const userId = user?.usuario.id;
+  const router = useRouter();
 
   const getOrderRequest = async (harvesterName: string) => {
     try {
@@ -52,8 +50,6 @@ const harvesterSelect = () => {
     }
   };
 
-  console.log("user: ", user);
-  const router = useRouter();
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>

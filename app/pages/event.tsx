@@ -8,6 +8,7 @@ import Automatic from "../../src/components/automatic";
 import { Event } from "../../src/interface/Event";
 import { manualEvents } from "../../src/components/manual";
 import { automaticEvents } from "../../src/components/automatic";
+
 const event = () => {
   const [selectedHarvester, setSelectedHarvester] = useState("");
   const [resetTimer, setResetTimer] = useState(false);

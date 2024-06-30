@@ -37,6 +37,12 @@ export const styles = StyleSheet.create({
     textTransform: "uppercase",
     fontSize: 20,
   },
+  subTitle: {
+    textAlign: "center",
+    fontFamily: fonts.baiBold,
+    color: colors.black[400],
+    fontSize: 16,
+  },
   titleBig: {
     textAlign: "center",
     fontFamily: fonts.baiBold,
