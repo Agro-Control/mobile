@@ -36,8 +36,6 @@ const startTurn = () => {
         nome: "inicio_ordem_servico",
         data_inicio: new Date().toISOString(),
         data_fim: new Date().toISOString(),
-        duracao: 0,
-        ocioso: 0,
         ordem_servico_id: orderId!,
         maquina_id: maquina_id!,
         operador_id: operador_id!,

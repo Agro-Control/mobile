@@ -1,103 +1,86 @@
-import React, { useEffect, useState, useRef } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useBackHandler } from "@react-native-community/hooks";
-import { ApiEvents } from "../../src/interface/ApiEvents";
+import Manual, { eventsArray } from "../../src/components/manual";
 import { handleApiEvent } from "../../src/utils/handleApiEvent";
-import Manual from "../../src/components/manual";
+import { useBackHandler } from "@react-native-community/hooks";
+import { SimulatorEvent } from "../../src/interface/Event";
+import React, { useEffect, useState, useRef } from "react";
 import Automatic from "../../src/components/automatic";
-import { Event } from "../../src/interface/Event";
-import { manualEvents } from "../../src/components/manual";
-import { automaticEvents } from "../../src/components/automatic";
+import useOrder from "../../src/utils/hooks/useOrder";
+import { events } from "../../src/interface/events";
+import useUser from "../../src/utils/hooks/useUser";
+import Event from "../../src/interface/evento";
 
 const event = () => {
+  const { user } = useUser();
+  const { order } = useOrder();
+  const orderId = order?.id;
+  const minimum = order?.velocidade_minima;
+  const maximum = order?.velocidade_maxima;
+  const rpm = order?.rpm;
+
   const [selectedHarvester, setSelectedHarvester] = useState("");
   const [resetTimer, setResetTimer] = useState(false);
   const [start_time, setStart_time] = useState(new Date());
-  const [event, setEvent] = useState<Event>();
-  const [automaticEvent, setAutomaticEvent] = useState(true);
-  const eventRef = useRef<Event>();
-  const startedRef = useRef<Date>();
-
-  const handleEvent = (eventName: Event) => {
-    if (eventRef.current) {
-      const finished_at = new Date();
-      const duration =
-        startedRef.current &&
-        finished_at.getTime() - startedRef.current.getTime();
-      const startedTime =
-        startedRef.current && startedRef.current.toISOString();
-      const oldEvent: ApiEvents = {
-        name: eventRef.current.name,
-        order_service: 1,
-        id_operador: 1,
-        id_maquina: 1,
-        data_inicio: startedTime ?? start_time.toISOString(),
-        data_fim: finished_at.toISOString(),
-        duration: duration ? duration : 0,
-      };
-      console.log(oldEvent);
-      // handleApiEvent(oldEvent);
-    }
-    setStart_time(new Date());
-    startedRef.current = new Date();
-    setResetTimer(true);
-    eventRef.current = eventName;
-    setEvent(eventName);
-  };
+  const [event, setEvent] = useState<string>("Ocioso");
+  const [automaticEvent, setAutomaticEvent] = useState(false);
 
   useBackHandler(() => {
     return true;
   });
 
+
   useEffect(() => {
-    const getSelectedHarvester = async () => {
-      try {
-        const response = await AsyncStorage.getItem("selectedHarvester");
-        setSelectedHarvester(response || "não selecionada");
-      } catch (e) {}
+    const simulateEvent = async () => {
+      const operador_id = user?.usuario.id;
+      const empresa_id = user?.usuario.empresa_id;
+      const grupo_id = user?.usuario.grupo_id;
+      const maquina_id = order?.maquina_id;
+      const order_id = order?.id;
+
+      const randomIndex = Math.floor(Math.random() * eventsArray.length);
+      const event = eventsArray[randomIndex];
+      setEvent(event.name);
+      const isAutomatic = event.isAutomatic;
+      const timeout =
+        event.minDuration +
+        Math.floor(Math.random() * (event.maxDuration - event.minDuration + 1));
+      const formattedEvent: Event = {
+        nome: event.value,
+        data_inicio: new Date().toISOString(),
+        ordem_servico_id: order_id!,
+        maquina_id: maquina_id!,
+        operador_id: operador_id!,
+        empresa_id: empresa_id!,
+        grupo_id: grupo_id!,
+      };
+      console.log(formattedEvent);
+      setAutomaticEvent(isAutomatic);
+
+      setTimeout(() => {
+        // handleEvent(event);
+        simulateEvent(); // Call simulateEvent again to continue the simulation
+      }, timeout);
     };
 
-    getSelectedHarvester();
-  }, []);
-
-  useEffect(() => {
-    const events = [
-      { event: automaticEvents[0], isAutomatic: true, timeout: 0 },
-      { event: manualEvents[1], isAutomatic: false, timeout: 30000 },
-      { event: automaticEvents[1], isAutomatic: true, timeout: 34000 },
-      { event: automaticEvents[2], isAutomatic: true, timeout: 38000 },
-      { event: manualEvents[4], isAutomatic: false, timeout: 46000 },
-      { event: manualEvents[3], isAutomatic: false, timeout: 49000 },
-      { event: manualEvents[0], isAutomatic: false, timeout: 54000 },
-    ];
-
-    events.forEach(({ event, isAutomatic, timeout }) => {
-      setTimeout(() => {
-        setAutomaticEvent(isAutomatic);
-        handleEvent(event);
-      }, timeout);
-    });
+    setTimeout(() => {
+      simulateEvent();
+    }, 2000);
   }, []);
 
   return (
     <>
       {automaticEvent ? (
         <Automatic
-          automaticEvent={automaticEvent}
-          setAutomaticEvent={setAutomaticEvent}
+          orderId={orderId!}
           event={event}
-          selectedHarvester={selectedHarvester}
-          handleEvent={handleEvent}
           resetTimer={resetTimer}
           setResetTimer={setResetTimer}
         />
       ) : (
         <Manual
-          automaticEvent={automaticEvent}
-          setAutomaticEvent={setAutomaticEvent}
+          orderId={orderId!}
           event={event}
-          selectedHarvester={selectedHarvester}
-          handleEvent={handleEvent}
+          handleEvent={() => {}}
           resetTimer={resetTimer}
           setResetTimer={setResetTimer}
         />

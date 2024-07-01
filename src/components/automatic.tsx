@@ -1,42 +1,32 @@
-import React from "react";
-import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { styles } from "./styles";
+import { SimulatorEvent } from "../interface/Event";
 import Header from "../../src/components/header";
-import Farm from "../../src/assets/farm.svg";
 import Timer from "../../src/components/timer";
-import { Event } from "../interface/Event";
-import { EventProps } from "./manual";
+import Farm from "../../src/assets/farm.svg";
 import Toast from "react-native-root-toast";
+import { Text, View } from "react-native";
 import { colors } from "../colors";
+import { styles } from "./styles";
+import React from "react";
 
-export const automaticEvents: Event[] = [
-  {
-    id: 1,
-    name: "Operação",
-    value: "operacao",
-  },
-  {
-    id: 2,
-    name: "Transbordo",
-    value: "aguardando_transbordo",
-  },
-  {
-    id: 3,
-    name: "Deslocamento",
-    value: "deslocamento",
-  },
+export const automaticEvents: SimulatorEvent[] = [
+ 
 ];
+
+
+interface AutomaticProps {
+  event: string;
+  resetTimer: boolean;
+  setResetTimer: React.Dispatch<React.SetStateAction<boolean>>;
+  orderId: number;
+}
 
 const Automatic = ({
   event,
-  automaticEvent,
-  setAutomaticEvent,
-  selectedHarvester,
-  handleEvent,
   resetTimer,
   setResetTimer,
-}: EventProps) => {
+  orderId,
+}: AutomaticProps) => {
   const { top } = useSafeAreaInsets();
 
   const toast = Toast.show(
@@ -63,11 +53,11 @@ const Automatic = ({
       <Header />
       <View style={styles.eventTitleContainer}>
         <Text style={styles.eventTitle}>Eventos Automáticos</Text>
-        <Text style={styles.title}>Ordem de Serviço - {selectedHarvester}</Text>
+        <Text style={styles.title}>Ordem de Serviço - {orderId}</Text>
       </View>
       <Farm width={250} height={166} />
       <View style={styles.eventTimerContainer}>
-        <Text style={styles.eventDescription}>{event?.name || "Ocioso"}</Text>
+        <Text style={styles.eventDescription}>{event || "Ocioso"}</Text>
         <Timer
           setShouldResetTimer={setResetTimer}
           shouldResetTimer={resetTimer}

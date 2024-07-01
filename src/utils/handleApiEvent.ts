@@ -1,7 +1,7 @@
+import Event from "../interface/evento";
 import { api } from "../api/api";
-import { ApiEvents } from "../interface/ApiEvents";
 
-export const handleApiEvent = (event: ApiEvents) => {
+export const handleApiEvent = (event: Event) => {
   api.post("/eventos", event, {
     headers: {
       "Accept-Language": "pt_BR",
