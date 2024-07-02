@@ -39,17 +39,7 @@ export const eventsArray: SimulatorEvent[] = [
     maxSpeed: 0,
     minSpeed: 0,
   },
-  {
-    id: 3,
-    name: "Troca de Turno",
-    value: "troca_turno",
-    isAutomatic: false,
-    maxDuration: 35000,
-    minDuration: 15000,
-    rpm: 0,
-    maxSpeed: 0,
-    minSpeed: 0,
-  },
+ 
   {
     id: 4,
     name: "Manutenção",
@@ -73,6 +63,17 @@ export const eventsArray: SimulatorEvent[] = [
     minSpeed: 0,
   },
   {
+    id: 3,
+    name: "Troca de Turno",
+    value: "troca_turno",
+    isAutomatic: false,
+    maxDuration: 35000,
+    minDuration: 15000,
+    rpm: 0,
+    maxSpeed: 0,
+    minSpeed: 0,
+  },
+  {
     id: 6,
     name: "Operação",
     value: "operacao",
@@ -83,6 +84,7 @@ export const eventsArray: SimulatorEvent[] = [
     maxSpeed: 5.0,
     minSpeed: 1.5,
   },
+  
   {
     id: 7,
     name: "Transbordo",
@@ -105,6 +107,28 @@ export const eventsArray: SimulatorEvent[] = [
     maxSpeed: 3.0,
     minSpeed: 1.0,
   },
+  {
+    id: 10,
+    name: "Operação",
+    value: "operacao",
+    isAutomatic: true,
+    maxDuration: 5000,
+    minDuration: 1000,
+    rpm: 0,
+    maxSpeed: 22.0,
+    minSpeed: 17.5,
+  },
+  {
+    id: 11,
+    name: "Operação",
+    value: "operacao",
+    isAutomatic: true,
+    maxDuration: 22000,
+    minDuration: 10000,
+    rpm: 4000,
+    maxSpeed: 12.0,
+    minSpeed: 5.5,
+  },
 ];
 
 const Manual = ({
@@ -125,7 +149,7 @@ const Manual = ({
         <Text style={styles.title}>Ordem de Serviço - {orderId}</Text>
       </View>
       <View style={styles.eventButtonContainer}>
-        {eventsArray.slice(0,5).map((event) => (
+        {eventsArray.slice(0,4).map((event) => (
           <TouchableOpacity
             onPress={() => handleEvent(event)}
             key={event.id}
@@ -139,6 +163,30 @@ const Manual = ({
             <Text style={styles.buttonText}>{event.name}</Text>
           </TouchableOpacity>
         ))}
+        <TouchableOpacity
+          onPress={() => {
+            handleEvent({
+              id: 3,
+              name: "Troca de Turno",
+              value: "troca_turno",
+              isAutomatic: false,
+              maxDuration: 35000,
+              minDuration: 15000,
+              rpm: 0,
+              maxSpeed: 0,
+              minSpeed: 0,
+            });
+            router.push("pages/endTurn");
+          }}
+          style={[
+            styles.eventButton,
+            {
+              backgroundColor: colors.green[400],
+            },
+          ]}
+        >
+          <Text style={styles.buttonText}>Trocar Turno</Text>
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
             handleEvent({
@@ -159,6 +207,7 @@ const Manual = ({
             {
               backgroundColor: colors.green[700],
             },
+            
           ]}
         >
           <Text style={styles.buttonText}>Finalizar OS</Text>

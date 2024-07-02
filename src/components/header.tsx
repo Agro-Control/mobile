@@ -30,9 +30,6 @@ const Header = () => {
           <Text style={styles.title}>{userName || ""}</Text>
         </View>
 
-        <TouchableOpacity onPress={() => logoutRequest()}>
-          <Icon name="log-out" size={20} color="#000" />
-        </TouchableOpacity>
       </View>
     </View>
   );

@@ -2,63 +2,204 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Manual, { eventsArray } from "../../src/components/manual";
 import { handleApiEvent } from "../../src/utils/handleApiEvent";
 import { useBackHandler } from "@react-native-community/hooks";
-import { SimulatorEvent } from "../../src/interface/Event";
 import React, { useEffect, useState, useRef } from "react";
 import Automatic from "../../src/components/automatic";
 import useOrder from "../../src/utils/hooks/useOrder";
-import { events } from "../../src/interface/events";
-import useUser from "../../src/utils/hooks/useUser";
 import Event from "../../src/interface/evento";
+import Toast from "react-native-root-toast";
+import { colors } from "../../src/colors";
+import { SimulatorEvent } from "../../src/interface/Event";
+import api from "../../src/api/api";
+
+interface PostEvent {
+  id: string;
+}
 
 const event = () => {
-  const { user } = useUser();
   const { order } = useOrder();
   const orderId = order?.id;
-  const minimum = order?.velocidade_minima;
-  const maximum = order?.velocidade_maxima;
-  const rpm = order?.rpm;
+  const eventWeights = [
+    0, 2, 3, 1, 1, 1, 5, 5, 5, 5, 5, 6, 6, 7, 7, 7, 8, 8, 9, 9, 9,
+  ];
 
-  const [selectedHarvester, setSelectedHarvester] = useState("");
   const [resetTimer, setResetTimer] = useState(false);
-  const [start_time, setStart_time] = useState(new Date());
+  const [stopSimulate, setStopSimulate] = useState(false);
   const [event, setEvent] = useState<string>("Ocioso");
   const [automaticEvent, setAutomaticEvent] = useState(false);
+  const [manualEventId, setManualEventId] = useState<Event>();
+  const stopSimulateRef = useRef(stopSimulate);
+
+  useEffect(() => {
+    stopSimulateRef.current = stopSimulate;
+  }, [stopSimulate]);
 
   useBackHandler(() => {
     return true;
   });
 
+  const manualHandleEvent = async (newManualEvent: SimulatorEvent) => {
+    if (manualEventId) {
+      const dataInicio = new Date(manualEventId.data_inicio);
+      const dataFim = new Date();
+
+      const putEvent = {
+        id: manualEventId.id,
+        nome: manualEventId.nome,
+        data_inicio: manualEventId.data_inicio,
+        data_fim: new Date().toISOString(),
+        duracao: Math.floor((dataFim.getTime() - dataInicio.getTime()) / 1000),
+        ordem_servico_id: manualEventId.ordem_servico_id,
+        maquina_id: manualEventId.maquina_id,
+        operador_id: manualEventId.operador_id,
+        empresa_id: manualEventId.empresa_id,
+        grupo_id: manualEventId.grupo_id,
+      };
+
+      await api.put(`/eventos`, putEvent);
+    }
+
+    setStopSimulate(true);
+    setEvent(newManualEvent.name);
+    setResetTimer(true);
+    setAutomaticEvent(false);
+    const jsonOrder = await AsyncStorage.getItem("order");
+
+    const jsonUser = await AsyncStorage.getItem("user");
+
+    const orderData = jsonOrder != null && JSON.parse(jsonOrder);
+
+    const userData = jsonUser != null && JSON.parse(jsonUser);
+
+    const operador_id = userData.usuario.id;
+    const empresa_id = userData.usuario.empresa_id;
+    const grupo_id = userData.usuario.grupo_id;
+
+    const maquina_id = orderData.maquina_id;
+    const order_id = orderData.id;
+
+    const formattedEvent: Event = {
+      nome: newManualEvent.value,
+      data_inicio: new Date().toISOString(),
+      data_fim:
+        newManualEvent.value === "fim_ordem" ||
+        newManualEvent.value === "troca_turno"
+          ? new Date().toISOString()
+          : null,
+      ordem_servico_id: order_id,
+      maquina_id: maquina_id,
+      operador_id: operador_id,
+      empresa_id: empresa_id,
+      grupo_id: grupo_id,
+    };
+
+    const { data } = await api.post<PostEvent>("/eventos", formattedEvent);
+
+    setManualEventId({
+      ...formattedEvent,
+      id: data.id,
+    });
+  };
 
   useEffect(() => {
-    const simulateEvent = async () => {
-      const operador_id = user?.usuario.id;
-      const empresa_id = user?.usuario.empresa_id;
-      const grupo_id = user?.usuario.grupo_id;
-      const maquina_id = order?.maquina_id;
-      const order_id = order?.id;
+    if (stopSimulateRef.current) return;
 
-      const randomIndex = Math.floor(Math.random() * eventsArray.length);
+    const simulateEvent = async () => {
+      if (stopSimulateRef.current) return;
+
+      const jsonOrder = await AsyncStorage.getItem("order");
+
+      const jsonUser = await AsyncStorage.getItem("user");
+
+      const orderData = jsonOrder != null && JSON.parse(jsonOrder);
+
+      const userData = jsonUser != null && JSON.parse(jsonUser);
+
+      const maximum = orderData.velocidade_maxima;
+      const rpm = orderData.rpm;
+      const operador_id = userData.usuario.id;
+      const empresa_id = userData.usuario.empresa_id;
+      const grupo_id = userData.usuario.grupo_id;
+
+      const maquina_id = orderData.maquina_id;
+      const order_id = orderData.id;
+
+      const randomIndex =
+        eventWeights[Math.floor(Math.random() * eventWeights.length)];
+
       const event = eventsArray[randomIndex];
+
       setEvent(event.name);
+      const randomSpeed = Math.floor(
+        Math.random() * (event.maxSpeed - event.minSpeed + 1) + event.minSpeed
+      );
+
+      if (randomSpeed > maximum) {
+        const errorMessage = `Você está acima da velocidade descrita na ordem de serviço Velocidades: Atual: ${randomSpeed}km/h - Permitida: ${maximum}km/h `;
+        const toast = Toast.show(`${errorMessage}`, {
+          duration: Toast.durations.LONG,
+          position: 50,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          delay: 0,
+          backgroundColor: colors.red[500],
+          textColor: colors.default.bg,
+          onShow: () => {},
+          onShown: () => {},
+          onHide: () => {},
+          onHidden: () => {},
+        });
+
+        setTimeout(function () {
+          Toast.hide(toast);
+        }, 12000);
+      }
+      if (event.rpm > rpm) {
+        const errorMessage = `O RPM está acima do descrito na ordem de serviço Motor: Atual: ${event.rpm}rpm - Permitida: ${rpm}rpm `;
+        const toast = Toast.show(`${errorMessage}`, {
+          duration: Toast.durations.LONG,
+          position: 50,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          delay: 0,
+          backgroundColor: colors.red[500],
+          textColor: colors.default.bg,
+          onShow: () => {},
+          onShown: () => {},
+          onHide: () => {},
+          onHidden: () => {},
+        });
+
+        setTimeout(function () {
+          Toast.hide(toast);
+        }, 12000);
+      }
+
       const isAutomatic = event.isAutomatic;
       const timeout =
         event.minDuration +
         Math.floor(Math.random() * (event.maxDuration - event.minDuration + 1));
+
       const formattedEvent: Event = {
         nome: event.value,
         data_inicio: new Date().toISOString(),
-        ordem_servico_id: order_id!,
-        maquina_id: maquina_id!,
-        operador_id: operador_id!,
-        empresa_id: empresa_id!,
-        grupo_id: grupo_id!,
+        duracao: Math.floor(timeout / 1000),
+        data_fim: new Date(new Date().getTime() + timeout).toISOString(),
+        ordem_servico_id: order_id,
+        maquina_id: maquina_id,
+        operador_id: operador_id,
+        empresa_id: empresa_id,
+        grupo_id: grupo_id,
       };
-      console.log(formattedEvent);
+
+      setResetTimer(true);
+      handleApiEvent(formattedEvent);
       setAutomaticEvent(isAutomatic);
 
       setTimeout(() => {
-        // handleEvent(event);
-        simulateEvent(); // Call simulateEvent again to continue the simulation
+        if (stopSimulateRef.current) return;
+        simulateEvent();
       }, timeout);
     };
 
@@ -80,7 +221,7 @@ const event = () => {
         <Manual
           orderId={orderId!}
           event={event}
-          handleEvent={() => {}}
+          handleEvent={manualHandleEvent}
           resetTimer={resetTimer}
           setResetTimer={setResetTimer}
         />

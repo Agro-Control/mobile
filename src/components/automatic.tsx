@@ -29,25 +29,6 @@ const Automatic = ({
 }: AutomaticProps) => {
   const { top } = useSafeAreaInsets();
 
-  const toast = Toast.show(
-    "Você está acima da velocidade descrita na ordem de serviço",
-    
-    {
-      duration: Toast.durations.LONG,
-      position: 50,
-      shadow: true,
-      animation: true,
-      hideOnPress: true,
-      delay: 0,
-      backgroundColor: colors.red[500],
-      textColor: colors.default.bg,
-      onShow: () => {},
-      onShown: () => {},
-      onHide: () => {},
-      onHidden: () => {},
-    }
-  );
-
   return (
     <View style={[styles.eventContainer, { paddingTop: top + 80 }]}>
       <Header />
