@@ -1,8 +1,6 @@
 import { Text, View, TouchableOpacity, Image } from "react-native";
-import Icon from "@expo/vector-icons/Feather";
 import { styles } from "./styles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { logoutRequest } from "../utils/logoutRequest";
 import useUser from "../utils/hooks/useUser";
 import logoRounded from "../assets/logo-rounded.png"
 

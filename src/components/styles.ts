@@ -83,6 +83,7 @@ export const styles = StyleSheet.create({
     fontSize: 48,
   },
   eventTitleContainer: {
+    position: "relative",
     gap: 16,
     alignItems: "center",
     justifyContent: "flex-start",

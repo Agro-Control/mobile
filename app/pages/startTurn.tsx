@@ -10,6 +10,11 @@ import { useRouter } from "expo-router";
 import { styles } from "../styles";
 import { AxiosError } from "axios";
 import api from "../../src/api/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+interface LoginTrack {
+  id: string;
+}
 
 const startTurn = () => {
   const router = useRouter();
@@ -20,10 +25,11 @@ const startTurn = () => {
   const empresa_id = user?.usuario.empresa_id;
   const grupo_id = user?.usuario.grupo_id;
   const maquina_id = order?.maquina_id;
-
+  const operador_nome = user?.usuario.nome;
   const orderId = order?.id;
   const minimum = order?.velocidade_minima;
   const maximum = order?.velocidade_maxima;
+  const orderStatus = order?.status;
   const rpm = order?.rpm;
 
   const handleBack = () => {
@@ -39,11 +45,32 @@ const startTurn = () => {
         ordem_servico_id: orderId!,
         maquina_id: maquina_id!,
         operador_id: operador_id!,
+        operador_nome: operador_nome!,
         empresa_id: empresa_id!,
         grupo_id: grupo_id!,
       };
 
-      await api.post("eventos", formattedEventData);
+      const formattedOperator = {
+        operador_id: operador_id,
+        maquina_id: maquina_id,
+        empresa_id: empresa_id,
+        grupo_id: grupo_id,
+        ordem_id: orderId,
+      };
+
+      if (orderStatus === "A") {
+        await api.post("eventos", formattedEventData);
+      }
+
+      const loginTrack = await api.post<LoginTrack>(
+        "/ordem/alocar_operador_maquina",
+        formattedOperator
+      );
+
+      const jsonTrack = JSON.stringify(loginTrack.data.id);
+
+      await AsyncStorage.setItem("track", jsonTrack);
+
       router.push("pages/event");
     } catch (error) {
       const axiosError = error as AxiosError;

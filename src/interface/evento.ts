@@ -12,6 +12,7 @@ interface Event {
   operador_id: number;
   empresa_id: number;
   grupo_id: number;
+  operador_nome: string;
 }
 
 export default Event;

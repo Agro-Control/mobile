@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { styles } from "./styles";
 import Timer from "../../src/components/timer";
@@ -7,13 +7,16 @@ import { colors } from "../../src/colors";
 import Header from "./header";
 import { SimulatorEvent } from "../interface/Event";
 import { useRouter } from "expo-router";
+import powerButton from "../assets/power.png";
 
 interface EventProps {
   event: string;
   handleEvent: (event: SimulatorEvent) => void;
   resetTimer: boolean;
   setResetTimer: React.Dispatch<React.SetStateAction<boolean>>;
+  handleStartSimulator: () => void;
   orderId: number;
+  isAutomaticEvent: boolean;
 }
 
 export const eventsArray: SimulatorEvent[] = [
@@ -39,7 +42,7 @@ export const eventsArray: SimulatorEvent[] = [
     maxSpeed: 0,
     minSpeed: 0,
   },
- 
+
   {
     id: 4,
     name: "Manutenção",
@@ -84,7 +87,7 @@ export const eventsArray: SimulatorEvent[] = [
     maxSpeed: 5.0,
     minSpeed: 1.5,
   },
-  
+
   {
     id: 7,
     name: "Transbordo",
@@ -137,19 +140,36 @@ const Manual = ({
   handleEvent,
   resetTimer,
   setResetTimer,
+  isAutomaticEvent,
+  handleStartSimulator,
 }: EventProps) => {
   const { top } = useSafeAreaInsets();
   const router = useRouter();
   return (
     <View style={[styles.eventContainer, { paddingTop: top + 80 }]}>
       <Header />
-
       <View style={styles.eventTitleContainer}>
-        <Text style={styles.eventTitle}>Eventos Manuais</Text>
+        {!isAutomaticEvent && (
+          <TouchableOpacity
+            onPress={() => {
+              handleStartSimulator();
+            }}
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 12,
+              height: 24,
+              width: 24,
+            }}
+          >
+            <Image source={powerButton} style={{ height: 24, width: 24 }} />
+          </TouchableOpacity>
+        )}
+        <Text style={styles.eventTitle}>Eventos</Text>
         <Text style={styles.title}>Ordem de Serviço - {orderId}</Text>
       </View>
       <View style={styles.eventButtonContainer}>
-        {eventsArray.slice(0,4).map((event) => (
+        {eventsArray.slice(0, 4).map((event) => (
           <TouchableOpacity
             onPress={() => handleEvent(event)}
             key={event.id}
@@ -207,7 +227,6 @@ const Manual = ({
             {
               backgroundColor: colors.green[700],
             },
-            
           ]}
         >
           <Text style={styles.buttonText}>Finalizar OS</Text>
@@ -215,6 +234,9 @@ const Manual = ({
       </View>
 
       <View style={styles.eventTimerContainer}>
+        <Text style={styles.title}>
+          Evento {isAutomaticEvent ? "Automatico" : "Manual"}
+        </Text>
         <Text style={styles.eventDescription}>{event || "Ocioso"}</Text>
         <Timer
           setShouldResetTimer={setResetTimer}
