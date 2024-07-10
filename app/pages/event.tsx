@@ -32,13 +32,13 @@ const event = () => {
   const manualHandleEvent = async (newManualEvent: SimulatorEvent) => {
     if (manualEventId.current) {
       const dataInicio = new Date(manualEventId.current.data_inicio);
-      const dataFim = new Date();
+      const dataFim = new Date(new Date().getTime() - (3 * 60 * 60 * 1000));
 
       const putEvent = {
         id: manualEventId.current.id,
         nome: manualEventId.current.nome,
         data_inicio: manualEventId.current.data_inicio,
-        data_fim: new Date().toISOString(),
+        data_fim: new Date(new Date().getTime() - (3 * 60 * 60 * 1000)).toISOString(),
         duracao: Math.floor((dataFim.getTime() - dataInicio.getTime()) / 1000),
         ordem_servico_id: manualEventId.current.ordem_servico_id,
         maquina_id: manualEventId.current.maquina_id,
@@ -72,11 +72,11 @@ const event = () => {
 
     const formattedEvent: Event = {
       nome: newManualEvent.value,
-      data_inicio: new Date().toISOString(),
+      data_inicio: new Date(new Date().getTime() - (3 * 60 * 60 * 1000)).toISOString(),
       data_fim:
         newManualEvent.value === "fim_ordem" ||
         newManualEvent.value === "troca_turno"
-          ? new Date().toISOString()
+          ? new Date(new Date().getTime() - (3 * 60 * 60 * 1000)).toISOString()
           : null,
       ordem_servico_id: order_id,
       operador_nome: operador_nome,
@@ -112,13 +112,13 @@ const event = () => {
 
     if (manualEventId.current) {
       const dataInicio = new Date(manualEventId.current.data_inicio);
-      const dataFim = new Date();
+      const dataFim = new Date(new Date().getTime() - (3 * 60 * 60 * 1000));
 
       const putEvent = {
         id: manualEventId.current.id,
         nome: manualEventId.current.nome,
         data_inicio: manualEventId.current.data_inicio,
-        data_fim: new Date().toISOString(),
+        data_fim:  new Date(new Date().getTime() - (3 * 60 * 60 * 1000)).toISOString(),
         duracao: Math.floor((dataFim.getTime() - dataInicio.getTime()) / 1000),
         ordem_servico_id: manualEventId.current.ordem_servico_id,
         maquina_id: manualEventId.current.maquina_id,
@@ -208,7 +208,7 @@ const event = () => {
 
     const formattedEvent: Event = {
       nome: event.value,
-      data_inicio: new Date().toISOString(),
+      data_inicio: new Date(new Date().getTime() - (3 * 60 * 60 * 1000)).toISOString(),
       ordem_servico_id: order_id,
       maquina_id: maquina_id,
       operador_id: operador_id,
